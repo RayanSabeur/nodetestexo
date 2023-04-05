@@ -2,7 +2,7 @@ let readline = require('readline')
 
 rl = readline.createInterface(process.stdin, process.stdout);
 
-rl.setPrompt('Propose un nom detudient : ')
+rl.setPrompt('Propose un nom detudient')
 rl.prompt()
 
 
@@ -27,5 +27,5 @@ rl.on('line', function(line) {
             break;
     }
 
-    rl.prompt()
+    rl.prompt
 })
