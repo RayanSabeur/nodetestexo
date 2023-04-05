@@ -2,6 +2,7 @@ const fs = require("fs");
 const readline = require("readline");
 const allplayers = JSON.parse( fs.readFileSync("./player.json") );
 
+//travail seul
 const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout,
@@ -28,9 +29,7 @@ const rl = readline.createInterface({
                  pl.main = value
               console.log(pl[0])
           });
-
-          
-          
+     
         }
 
         StartGame()
