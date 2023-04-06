@@ -1,54 +1,58 @@
-const http = require('http')
-const hostname = "localhost"
-const port = "8000"
-const user = require('./Utils')
+const fs = require('fs'),
+    http = require('http');
+    require('./Data/alice.json')
+const hostname = "localhost";
+const port = "8000";
+const alluser = JSON.parse( fs.readFileSync("./Data/all.json") );
 
-const users = [
-    'Alan',
-    'Sophie',
-    'Bernard',
-    'Elie'
-];
 
-const server = http.createServer((req,res) => {
-    res.writeHead(200, {
-        "Content-Type" : "text/plain",
+const server = http.createServer(function(req, res) {
+
+    const url = req.url.replace("/", "")
+    // __dirname donne le chemin absolu pour trouver le fichier
+  // ici la politique des urls indiquera le chemin à suivre pour récupérer le fichier
+
+  if (url == '/all') {
+    //La méthode writeHead envoie les entêtes au client (navigateur). 
+    //Précisez le code HTTP de retour, ici 200, c'est le statut HTTP. 
+    res.end(`<!DOCTYPE html>
+    <html>
+        <head>
+            <meta charset="utf-8">
+            <title>test</title>   
+        </head>
+        <body>
+            <p>Bienvenue sur la page de test</p>
+
+    ${ alluser.students.map(names => `<p key=${names.name}> ${names.name}</p>`)}
+        </body>
+    </html>`)
+    return;
+} else {
+    
+    alluser.students.map((names) => {
+      if(url.includes(names.name)){
+        const string = url.toLowerCase()
+        fs.readFile(__dirname + "\\Data\\"+ string + ".json", (err, data) => {
+            // on gère les erreurs et surtout on retourne une page 404 si il y a un problème
+         const test =   JSON.parse( fs.readFileSync(data) );
+         console.log(test)
+           // si tout se passe bien on retourne les données
+           res.writeHead(200);
+           res.end(console.log());
+
+        })
+   
+      }
     })
-    let url = req.url;
+}
 
-    if(url === "/racine")
-    {
-        res.end(`<!DOCTYPE html>
-        <html> 
-        <head>
-        <meta charset="utf-8">
-        <title> page test </title>
-        </head>
-        
-        <body> ${users.map((el) => {
-            return (
-               el
-            )
-        })} </body>`)
-    } else if(url === "/shuffle")
-    {
-        const shuffledArray = users.sort((a, b) => a - b)
-        res.end(`<!DOCTYPE html>
-        <html> 
-        <head>
-        <meta charset="utf-8">
-        <title> page test </title>
-        </head>
-        
-        <body> ${shuffledArray.map((el) => {
-            return (
-               el
-            )
-        })} </body>`)
-       
-    }
+
+  
+
+  
 })
 
 server.listen(port, hostname, () => {
-    console.log(`server running at http://${hostname}:${port}`)
-})
+    console.log(`Server running ate http://${hostname}:${port}/`);
+});
