@@ -1,59 +1,75 @@
-const http = require('http')
-const fs = require('fs')
-const hostname = 'localhost'
-const port = 8000
+const http = require("http");
+const fs = require("fs");
+
+const hostname = "localhost";
+const port = "8000";
 
 const students = [
     { name : "Sonia"},
     { name : "Antoine"}
 ];
 
-const server = http.createServer((req,res) => {
-    let url = req.url
-    res.statusCode = 200
-
-    if(url === "/formulaire") {
-      
-        fs.readFile(__dirname + "\\view\\home.html", (err, data) => {
-            // on gère les erreurs et surtout on retourne une page 404 si il y a un problème
-           if(err){
-               res.writeHead(404);
-               throw err;
-               // Il ne faut oublier de sortir de la fonction pour ne pas exécuter la suite du script
-              
-           }
-           res.writeHead(200);
-           res.end(data);
-
-           return
-       });
-
-    }
-    if (req.method === 'POST') {
-        // Handle post info...
-        let body = '';
-        req.on('data', data => {
-            body += data;
-        });
-    
-        // On écoute maintenant la fin de l'envoi des données avec la méthode on et l'attribut end
-        req.on('end', () => {
-            res.writeHead(200, { 'Content-Type' : 'application/json' });
-            res.end( JSON.stringify({ "result" : body }));
-        });
-    }
-
+const server = http.createServer((req, res) => {
+    const url = req.url.replace("/", "");
     if (url === "bootstrap") {
         res.writeHead(200, { "Content-Type": "text/css" });
-        const css = fs.readFileSync("./assets/css/bootstrap.min.css"); // on envoit le fichier au client
+        const css = fs.readFileSync("./assets/css/bootstrap.min.css");
         res.write(css);
         res.end();
-    
+
         return;
+    }
+
+    if (req.method === "POST") {
+        let body = "";
+        req.on("data", (data) => {
+            body +=data;
+        })
+
+        req.on("end", () => {
+            const replacer = new RegExp(/\+/, "g");
+            const name = body.toString().split(/=/).pop().replace(replacer, ' ');
+
+            if (name) students.push({name});
+
+            res.writeHead(301, { Location: `http://${hostname}:${port}`});
+            res.end();
+        });
+    }
+
+    if (url === "") {
+        const home = fs.readFileSync("./view/home.html");
+        res.writeHead(200, { "Content-Type": "text/html" });
+        res.end(home);
       }
 
-})
+    if (url === "users") {
+        res.writeHead(200, {"Content-Type" : "text/html"});
 
-server.listen(port,hostname, () => {
-    console.log(`server running att http://${hostname}:${port}/`)
+        let users = "<ul>";
+        for (const {name} of students){
+            users += `<li>${name}</li>`
+        }
+        users += "</ul>";
+
+        res.end(`
+            <!DOCTYPE html>
+            <html>
+                <head>
+                    <meta charset="utf-8">
+                    <title> Ajouter un étudiant</title>
+                </head>
+                <body>
+                    ${users}
+                    <p><a href="http://${hostname}:${port}"> Accueil</a></p>
+                </body>    
+            </html>
+        `);
+    };
+
+    
+});
+
+server.listen(port, hostname, () => {
+    console.log(`Server running at http://${hostname}:${port}/`);
 })
