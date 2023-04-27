@@ -22,7 +22,7 @@ app.use(express.static(path.join(__dirname, "public")));
 
 
 
-const botName = "ChatCord Bot";
+const botName = "Chat Bot";
 
 require('./router.js')(app)
 
@@ -31,7 +31,7 @@ io.on("connection", socket => {
     const user = userJoin(socket.id, username, room);
 
     socket.join(user.room);
-    socket.emit('message', formatMessage(botName, "a user has connected"))
+    socket.emit('message', formatMessage(botName, "bienvenu  " + username))
     // Listen for chatMessage
     socket.broadcast
     .to(user.room)

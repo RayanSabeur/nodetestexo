@@ -3,7 +3,7 @@ const chatMessages = document.querySelector('.chat-messages');
 const roomName = document.getElementById('room-name');
 const userList = document.getElementById('users');
 
-// Get username and room from URL
+// recuperation de la room
 
 const { username, room } = Qs.parse(location.search, {
   ignoreQueryPrefix: true,
@@ -12,7 +12,7 @@ const { username, room } = Qs.parse(location.search, {
 const socket = io();
 socket.emit('joinRoom', { username, room });
 
-// Get room and users
+
 socket.on('roomUsers', ({ room, users }) => {
   outputRoomName(room);
   outputUsers(users);
@@ -23,11 +23,11 @@ socket.on('message', message => {
   outputMessage(message)
   chatMessages.scrollTop = chatMessages.scrollHeight;
 })
-// Message submit
+
 chatForm.addEventListener('submit', (e) => {
   e.preventDefault();
 
-  // Get message text
+ 
   let msg = e.target.elements.msg.value;
 
   msg = msg.trim();
@@ -36,7 +36,7 @@ chatForm.addEventListener('submit', (e) => {
     return false;
   }
 
-  // Emit message to server
+
   socket.emit('chatMessage', msg);
 
   e.target.elements.msg.value = '';
@@ -51,7 +51,7 @@ function outputMessage(message) {
 
  div.classList.add('meta');
 
- div.innerHTML = `<p>${message.username} </p><p class="text">${message.text}</p>`;
+ div.innerHTML = `<p>${message.username} <span>${message.time} </span></p><p class="text">${message.text}</p>`;
   document.querySelector('.chat-messages').appendChild(div);
 }
 
@@ -69,9 +69,9 @@ function outputUsers(users) {
 }
 
 document.getElementById('leave-btn').addEventListener('click', () => {
-  const leaveRoom = confirm('Are you sure you want to leave the chatroom?');
+  const leaveRoom = confirm('etes vous sur de vouloir quitter cette room?');
   if (leaveRoom) {
-    window.location = '../index.html';
+    window.location = '/';
   } else {
   }
 });
